@@ -3,7 +3,7 @@ using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BulkyBookWeb.Controllers
+namespace BulkyBookWeb.Areas.Admin.Controllers
 {
     public class CategoryController : Controller
     {
@@ -26,7 +26,7 @@ namespace BulkyBookWeb.Controllers
             return View();
         }
 
-        [HttpPost]       
+        [HttpPost]
         public IActionResult Create(Category category)
         {
             if (category.Name == category.DisplayOrder.ToString())
@@ -47,7 +47,7 @@ namespace BulkyBookWeb.Controllers
         public IActionResult Edit(int? id)
         {
             if (id == null || id == 0)
-                  return NotFound(id);
+                return NotFound(id);
 
             var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
             if (category == null)
