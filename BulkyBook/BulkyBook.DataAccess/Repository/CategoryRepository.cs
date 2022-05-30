@@ -20,7 +20,7 @@ namespace BulkyBook.DataAccess.Repository
 
         public void Update(Category cateagory)
         {
-            _context.Update(cateagory);
+            _context.Categories.Update(cateagory);
         }
     }
 }
