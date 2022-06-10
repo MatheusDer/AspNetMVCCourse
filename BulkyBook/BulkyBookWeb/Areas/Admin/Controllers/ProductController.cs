@@ -57,20 +57,17 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upsert(Category category)
+        public IActionResult Upsert(ProductViewModel viewModel, IFormFile file)
         {
-            if (category.Name == category.DisplayOrder.ToString())
-                ModelState.AddModelError("Name", "The DisplayOrder cannot exactly match the Name.");
-
             if (ModelState.IsValid)
             {
-                _unitOfWork.Category.Update(category);
+                //_unitOfWork.Category.Update(viewModel);
                 _unitOfWork.Save();
                 TempData["success"] = "Category edited successfuly";
 
                 return RedirectToAction("Index");
             }
-            return View(category);
+            return View(viewModel);
         }
 
         [HttpGet]
