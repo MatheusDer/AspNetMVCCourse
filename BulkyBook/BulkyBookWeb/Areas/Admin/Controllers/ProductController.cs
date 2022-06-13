@@ -10,10 +10,12 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -59,11 +61,27 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Upsert(ProductViewModel viewModel, IFormFile file)
         {
+            const string PRODUCTPATH = @"images\products\";
+
             if (ModelState.IsValid)
             {
-                //_unitOfWork.Category.Update(viewModel);
+                var wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file is not null)
+                {
+                    var fileName = Guid.NewGuid().ToString(); 
+                    var uploadPath = Path.Combine(wwwRootPath, PRODUCTPATH);
+                    var extension = Path.GetExtension(file.FileName);
+
+                    using (var stream = new FileStream(Path.Combine(uploadPath, fileName + extension), FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+                    viewModel.Product.ImageUrl = PRODUCTPATH + fileName + extension;
+                }
+
+                _unitOfWork.Product.Add(viewModel.Product);
                 _unitOfWork.Save();
-                TempData["success"] = "Category edited successfuly";
+                TempData["success"] = "Product created successfuly";
 
                 return RedirectToAction("Index");
             }
