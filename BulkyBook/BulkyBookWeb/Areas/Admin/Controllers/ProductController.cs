@@ -20,8 +20,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<Category> categories = _unitOfWork.Category.GetAll();
-            return View(categories);
+            return View();
         }
 
         [HttpGet]
@@ -115,5 +114,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
+    #region API CALLS
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        var productList = _unitOfWork.Product.GetAll();
+        return Json(new { data = productList });
+    }
+    #endregion
     }
 }
