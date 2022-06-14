@@ -11,7 +11,7 @@
 	</div>
 	<br /><br />
 
-	<table class="table table-bordered table-striped" style="width: 100%">
+	<table id="myTable" class="table table-bordered table-striped" style="width: 100%">
 		<thead>
 			<tr>
 				<th>
@@ -26,12 +26,16 @@
 				<th>
 					Product Author
 				</th>
-				<th>
-					Product Category
+				@*<th>
+					product category
 				</th>
-				<th></th>
+				<th></th>*@
 			</tr>
 		</thead>
 	</table>
 </div>
+
+@section Scripts{
+	<script src="~/js/product.js"></script>
+}
 
