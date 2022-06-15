@@ -57,25 +57,35 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Upsert(ProductViewModel viewModel, IFormFile file)
         {
-            const string PRODUCTPATH = @"images\products\";
-
             if (ModelState.IsValid)
             {
                 var wwwRootPath = _webHostEnvironment.WebRootPath;
                 if (file is not null)
                 {
                     var fileName = Guid.NewGuid().ToString(); 
-                    var uploadPath = Path.Combine(wwwRootPath, PRODUCTPATH);
+                    var uploadPath = Path.Combine(wwwRootPath, @"images\products\");
                     var extension = Path.GetExtension(file.FileName);
+
+                    if (viewModel.Product.ImageUrl is not null)
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, viewModel.Product.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                            System.IO.File.Delete(oldImagePath);
+                    }
 
                     using (var stream = new FileStream(Path.Combine(uploadPath, fileName + extension), FileMode.Create))
                     {
                         file.CopyTo(stream);
                     }
-                    viewModel.Product.ImageUrl = PRODUCTPATH + fileName + extension;
+                    viewModel.Product.ImageUrl = @"\images\products\" + fileName + extension;
                 }
+                
+                if (viewModel.Product.Id == 0)
+                    _unitOfWork.Product.Add(viewModel.Product);
+                else
+                    _unitOfWork.Product.Update(viewModel.Product);
 
-                _unitOfWork.Product.Add(viewModel.Product);
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfuly";
 

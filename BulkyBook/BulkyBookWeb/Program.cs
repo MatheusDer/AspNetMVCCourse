@@ -2,6 +2,7 @@ using BulkyBook.DataAccess;
 using BulkyBook.DataAccess.Repository;
 using BulkyBook.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(@"D:\Source\Repos\BulkyBook\BulkyBookWeb\wwwroot\images", "products")),
+    RequestPath = "/products"
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
