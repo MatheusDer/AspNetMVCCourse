@@ -92,43 +92,35 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             return View(viewModel);
+        }        
+
+        #region API CALLS
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var productList = _unitOfWork.Product.GetAll(includeProperties:"Category,CoverType");
+            return Json(new { data = productList });
         }
 
-        [HttpGet]
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
-                return NotFound(id);
+            var product = _unitOfWork.Product.GetFirstOrDefault(c => c.Id == id);
+            var productTitle = product.Title;
 
-            var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
-            if (category == null)
-                return NotFound(category);
+            if (product == null)
+                return Json(new { success = false, message = "Error while deleting" });
 
-            return View(category);
-        }
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
 
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePOST(int? id)
-        {
-            var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
+            if (System.IO.File.Exists(imagePath))
+                System.IO.File.Delete(imagePath);
 
-            if (category == null)
-                return NotFound(id);
-
-            _unitOfWork.Category.Remove(category);
+            _unitOfWork.Product.Remove(product);
             _unitOfWork.Save();
-            TempData["success"] = "Category deleted successfuly";
 
-            return RedirectToAction("Index");
+            return Json(new { success = true, message = $"Product {productTitle} deleted successfuly" });
         }
-
-    #region API CALLS
-    [HttpGet]
-    public IActionResult GetAll()
-    {
-        var productList = _unitOfWork.Product.GetAll(includeProperties:"Category,CoverType");
-        return Json(new { data = productList });
-    }
-    #endregion
+        #endregion
     }
 }
