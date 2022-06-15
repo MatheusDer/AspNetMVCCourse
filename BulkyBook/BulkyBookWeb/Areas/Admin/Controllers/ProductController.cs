@@ -49,12 +49,9 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             }
             else
             {
-
+                viewModel.Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
+                return View(viewModel);
             }
-
-            
-
-            return View(viewModel);
         }
 
         [HttpPost]
