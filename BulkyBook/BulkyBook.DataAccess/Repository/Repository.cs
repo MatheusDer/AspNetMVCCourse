@@ -41,6 +41,13 @@ namespace BulkyBook.DataAccess.Repository
         public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+
+            if (includeProperties is not null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    query = query.Include(includeProp);
+            }
+
             return query.FirstOrDefault(filter);
         }
 
