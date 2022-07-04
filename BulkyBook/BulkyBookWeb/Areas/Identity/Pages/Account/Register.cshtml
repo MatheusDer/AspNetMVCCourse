@@ -64,10 +64,10 @@
                 <label asp-for="Input.Role"></label>
             </div>
             <div class="form-floating py-2 col-6">
-                <select asp-for="Input.Company" style="display: none;" asp-items="@Model.Input.CompanyList" class="form-select">
+                <select asp-for="Input.CompanyId" style="display: none;" asp-items="@Model.Input.CompanyList" class="form-select">
                     <option disabled selected>--Select Company--</option>
                 </select>
-                <label asp-for="Input.Company" style="display: none;" id="Company-lbl"></label>
+                <label asp-for="Input.CompanyId" style="display: none;" id="Company-lbl"></label>
             </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">Register</button>
         </form>
@@ -113,11 +113,11 @@
             $('#Input_Role').change(function() {
                 var selection = $('#Input_Role Option:Selected').text();
                 if (selection != 'Company') {
-                    $('#Input_Company').hide();
+                    $('#Input_CompanyId').hide();
                     $('#Company-lbl').hide();
                 }
                 else {
-                    $('#Input_Company').show();
+                    $('#Input_CompanyId').show();
                     $('#Company-lbl').show();
                 }
             })
