@@ -13,7 +13,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private ShoppingCartVM ShoppingCart;
 
-        public int OrderTotal { get; set; } 
+        public int OrderTotal { get; set; }
 
         public CartController(IUnitOfWork unitOfWork)
         {
@@ -31,7 +31,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 Carts = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == claim.Value, includeProperties: "Product")
             };
 
-            foreach(var cart in ShoppingCart.Carts)
+            foreach (var cart in ShoppingCart.Carts)
             {
                 cart.Price = GetPrice(cart.Count, cart.Product.Price, cart.Product.Price50, cart.Product.Price100);
 
@@ -41,7 +41,36 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View(ShoppingCart);
         }
 
-        private double GetPrice(double quantity, double price, double price50, double price100)
+        public IActionResult Plus(int cartId)
+        {
+            var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
+            _unitOfWork.ShoppingCart.IncrementCount(cart, 1);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Minus(int cartId)
+        {
+            var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
+            if (cart.Count == 1)
+                _unitOfWork.ShoppingCart.Remove(cart);
+            else
+                _unitOfWork.ShoppingCart.DecrementCount(cart, 1);
+
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+        public IActionResult Remove(int cartId)
+        {
+            var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
+            _unitOfWork.ShoppingCart.Remove(cart);
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private static double GetPrice(double quantity, double price, double price50, double price100)
         {
             if (quantity <= 50)
                 return price;
