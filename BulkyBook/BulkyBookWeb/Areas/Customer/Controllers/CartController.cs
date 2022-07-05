@@ -19,6 +19,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+
         //[AllowAnonymous]
         public IActionResult Index()
         {
@@ -31,7 +32,11 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             };
 
             foreach(var cart in ShoppingCart.Carts)
+            {
                 cart.Price = GetPrice(cart.Count, cart.Product.Price, cart.Product.Price50, cart.Product.Price100);
+
+                ShoppingCart.Total += cart.Price * cart.Count;
+            }
 
             return View(ShoppingCart);
         }
