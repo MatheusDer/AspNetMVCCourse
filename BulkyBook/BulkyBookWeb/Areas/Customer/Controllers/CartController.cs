@@ -28,14 +28,15 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             ShoppingCart = new ShoppingCartVM()
             {
-                Carts = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == claim.Value, includeProperties: "Product")
+                Carts = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == claim.Value, includeProperties: "Product"),
+                OrderHeader = new()
             };
 
             foreach (var cart in ShoppingCart.Carts)
             {
                 cart.Price = GetPrice(cart.Count, cart.Product.Price, cart.Product.Price50, cart.Product.Price100);
 
-                ShoppingCart.Total += cart.Price * cart.Count;
+                ShoppingCart.OrderHeader.OrderTotal += cart.Price * cart.Count;
             }
 
             return View(ShoppingCart);
@@ -43,7 +44,32 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         public IActionResult Summary()
         {
-            return View();
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            ShoppingCart = new ShoppingCartVM()
+            {
+                Carts = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == claim.Value, includeProperties: "Product"),
+                OrderHeader = new()
+            };
+
+            ShoppingCart.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+
+            ShoppingCart.OrderHeader.Name = ShoppingCart.OrderHeader.ApplicationUser.Name;
+            ShoppingCart.OrderHeader.PhoneNumber = ShoppingCart.OrderHeader.ApplicationUser.PhoneNumber;
+            ShoppingCart.OrderHeader.StreetAddress = ShoppingCart.OrderHeader.ApplicationUser.StreetAddress;
+            ShoppingCart.OrderHeader.City = ShoppingCart.OrderHeader.ApplicationUser.City;
+            ShoppingCart.OrderHeader.State = ShoppingCart.OrderHeader.ApplicationUser.State;
+            ShoppingCart.OrderHeader.PostalCode = ShoppingCart.OrderHeader.ApplicationUser.PostalCode;
+
+            foreach (var cart in ShoppingCart.Carts)
+            {
+                cart.Price = GetPrice(cart.Count, cart.Product.Price, cart.Product.Price50, cart.Product.Price100);
+
+                ShoppingCart.OrderHeader.OrderTotal += cart.Price * cart.Count;
+            }
+
+            return View(ShoppingCart);
         }
 
         public IActionResult Plus(int cartId)
