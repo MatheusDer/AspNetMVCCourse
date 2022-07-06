@@ -4,6 +4,7 @@ using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
@@ -111,10 +112,69 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 _unitOfWork.Save();
             }
 
-            _unitOfWork.ShoppingCart.Remove(shoppingCart.Carts);
+            //stripe settings
+            var domain = "https://localhost:7066/";
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card",
+                },
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+                SuccessUrl = domain + $"Customer/Cart/OrderConfirmation?id={shoppingCart.OrderHeader.Id}",
+                CancelUrl = domain + $"Customer/Cart",
+            };
+
+            foreach(var cart in shoppingCart.Carts)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)cart.Price * 100, //cents in integer
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = cart.Product.Title,
+                        },
+                    },
+                    Quantity = cart.Count,
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+
+            _unitOfWork.OrderHeader.UpdateStripePaymentId(shoppingCart.OrderHeader.Id, session.Id, session.PaymentIntentId);
             _unitOfWork.Save();
 
-            return RedirectToAction(nameof(Index));
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
+            
+        }
+
+        public IActionResult OrderConfirmation(int id)
+        {
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(o => o.Id == id);
+
+            var service = new SessionService();
+            Session session = service.Get(orderHeader.SessionId);
+
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.OrderStatusApproved, SD.PaymentStatusApproved);
+                _unitOfWork.Save();
+
+            }
+            var carts = _unitOfWork.ShoppingCart.GetAll(c => c.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+
+            _unitOfWork.ShoppingCart.Remove(carts);
+            _unitOfWork.Save();
+
+            return View(id);
         }
 
         public IActionResult Plus(int cartId)
