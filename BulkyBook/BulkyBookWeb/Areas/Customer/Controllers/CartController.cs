@@ -41,6 +41,11 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View(ShoppingCart);
         }
 
+        public IActionResult Summary()
+        {
+            return View();
+        }
+
         public IActionResult Plus(int cartId)
         {
             var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
