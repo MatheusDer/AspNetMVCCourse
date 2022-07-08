@@ -1,5 +1,4 @@
-﻿using BulkyBook.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyBook.Models.ViewModels
 {
