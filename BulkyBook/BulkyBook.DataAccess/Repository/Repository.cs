@@ -41,9 +41,9 @@ namespace BulkyBook.DataAccess.Repository
             return query.ToList();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool trakced = true)
         {
-            IQueryable<T> query = dbSet;
+            var query = CreateQuery(trakced);
 
             query = query.Where(filter);
 
@@ -54,6 +54,14 @@ namespace BulkyBook.DataAccess.Repository
             }
 
             return query.FirstOrDefault();
+        }
+
+        private IQueryable<T> CreateQuery(bool trakced)
+        {
+            if (trakced == false)
+                return dbSet.AsNoTracking();
+
+            return dbSet;
         }
 
         public void Remove(T entity)
