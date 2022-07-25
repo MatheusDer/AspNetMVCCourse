@@ -232,7 +232,7 @@
                                 {
                                     <input asp-action="ShipOrder" type="submit" onclick="return ValidateInput()" class="btn btn-primary form-control my-1" value="Ship Order" />
                                 }
-                                if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+                                if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment && Model.OrderHeader.OrderStatus == SD.OrderStatusApproved)
                                 {
                                     <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
                                 }
