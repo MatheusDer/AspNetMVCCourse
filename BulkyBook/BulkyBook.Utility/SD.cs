@@ -21,13 +21,14 @@ namespace BulkyBook.Utility
         public const string OrderStatusInProcess = "Processing";
         public const string OrderStatusShipped = "Shipped";
         public const string OrderStatusCanceled = "Canceled";
-        public const string OrderStatusRefunded = "Refunded";
         #endregion
 
         #region PaymentStatus
         public const string PaymentStatusPending = "Pending";
         public const string PaymentStatusApproved = "Approved";
         public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
+        public const string PaymentStatusRefunded = "Refunded";
+        public const string PaymentStatusCanceled = "Canceled";
         public const string PaymentStatusRejected = "Rejected";
         #endregion
     }
