@@ -222,6 +222,11 @@
                                 </li>
                             </ul>
 
+                            @if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment
+                            && Model.OrderHeader.OrderStatus == SD.OrderStatusShipped)
+                            {
+                                <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
+                            }
                             @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                             {
                                 if (Model.OrderHeader.OrderStatus == SD.OrderStatusApproved)
@@ -232,13 +237,9 @@
                                 {
                                     <input asp-action="ShipOrder" type="submit" onclick="return ValidateInput()" class="btn btn-primary form-control my-1" value="Ship Order" />
                                 }
-                                if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment 
-                                && Model.OrderHeader.OrderStatus == SD.OrderStatusShipped)
-                                {
-                                    <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
-                                }
                                 if (Model.OrderHeader.OrderStatus != SD.OrderStatusCanceled
-                                && Model.OrderHeader.OrderStatus != SD.PaymentStatusRefunded)
+                                && Model.OrderHeader.OrderStatus != SD.PaymentStatusRefunded
+                                && Model.OrderHeader.OrderStatus != SD.OrderStatusShipped)
                                 {
                                     <input asp-action="Cancel" type="submit" class="btn btn-danger form-control my-1" value="Cancel Order" />
                                 }
@@ -252,20 +253,20 @@
 </form>
 
 @section Scripts{
-	@{
-	<partial name="_ValidationScriptsPartial" />
-	}
-	<script>
-		function ValidateInput() {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        function ValidateInput() {
             if (document.getElementById("trackingNumber").value == "" || document.getElementById("carrier").value == "") {
-				Swal.fire({
-				  icon: 'error',
-				  title: 'Oops...',
-				  text: 'Please enter a Tracking Number and a Carrier!',
-				})
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter a Tracking Number and a Carrier!',
+                })
                 return false;
-			}
+            }
             return true;
-		}
-	</script>
+        }
+    </script>
 }
